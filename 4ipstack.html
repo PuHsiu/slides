@@ -1,0 +1,636 @@
+<!doctype html>
+<html lang="en">
+
+	<head>
+		<meta charset="utf-8">
+
+		<title>4ipstack</title>
+
+		<meta name="description" content="A Brief Describe of openstack in our company, and share some experience.">
+		<meta name="author" content="Pu Hsiu, Chiang">
+
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+
+		<link rel="stylesheet" href="js/reveal.js/css/reveal.css">
+		<link rel="stylesheet" href="js/reveal.js/css/theme/black.css" id="theme">
+
+		<!-- Code syntax highlighting -->
+		<link rel="stylesheet" href="js/reveal.js/lib/css/zenburn.css">
+
+		<!-- Printing and PDF exports -->
+		<script>
+			var link = document.createElement( 'link' );
+			link.rel = 'stylesheet';
+			link.type = 'text/css';
+			link.href = window.location.search.match( /print-pdf/gi ) ? 'js/reveal.js/css/print/pdf.css' : 'js/reveal.js/css/print/paper.css';
+			document.getElementsByTagName( 'head' )[0].appendChild( link );
+		</script>
+
+		<!--[if lt IE 9]>
+		<script src="js/reveal.js/lib/js/html5shiv.js"></script>
+		<![endif]-->
+	</head>
+
+	<body>
+
+		<div class="reveal">
+
+			<div class="slides">
+				<section>
+					<h1>4ipstack</h1>
+					<h3>Openstack @ our company</h3>
+				</section>
+				<section>
+					<section>
+						<h2>What is Openstack ?</h2>
+					</section>
+
+					<section>
+						<h2>整合分散的硬體資源</h2>
+						<h2>+</h2>
+						<h2>有效的分配</h2>
+						<h2 style="text-align:right">的平台</h2>
+					</section>
+
+					<section>
+						<ol>
+							<li>網路</li>
+							<li>CPU</li>
+							<li>記憶體</li>
+							<li>儲存空間</li>
+						</ol>
+						<img data-src="4ipstack/resource_use.png">
+					</section>
+
+					<section>
+						<h2>網路資源管理</h2>
+						<ul>
+							<li>Neutron Network</li>
+							<li style="color:gray">Nova Network</li>
+						</ul>
+					</section>
+
+					<section>
+						<h2>運算資源管理</h2>
+						<ul>
+							<li>Nova</li>
+						</ul>
+					</section>
+
+					<section>
+						<h2>儲存資源管理</h2>
+						<ul>
+							<li>Cinder</li>
+							<li style="color:gray">Swift</li>
+						</ul>
+					</section>
+
+					<section>
+						<h2>Openstack 核心服務</h2>
+						<ul>
+							<li>Keystone</li>
+							<li>Glance</li>
+							<hr>
+							<li>MySQL</li>
+							<li>RabbitMQ</li>
+							<li>NTP</li>
+						</ul>
+					</section>
+					<section>
+						<h2>其它服務</h2>
+						<ul>
+							<li>Horizon</li>
+							<li>Ceilometer</li>
+							<li>Heat</li>
+						</ul>
+					</section>
+				</section>
+				<!--section>
+					<section>
+						<h2>Keystone</h2>
+						<ol>
+							<li>User</li>
+							<li>Tenant</li>
+							<li>Service</li>
+							<li>Endpoint</li>
+						</ol>
+					</section>
+				</section-->
+				<section>
+					<section>
+						<h2>安裝與設置 (簡易版)</h2>
+						<p>
+							<a href="http://docs.openstack.org/juno/install-guide/install/apt/content/">官方安裝指南</a>
+						</p>
+					</section>
+					<section>
+						<h2>Databases</h2>
+<pre><code>-- Create a database
+CREATE DATABASE nova;
+
+-- Assign a full permission for user "nova" under database "nova"
+GRANT ALL PRIVILEGES ON nova.* TO 'nova'@'localhost' IDENTIFIED BY 'NOVA_PASS';
+GRANT ALL PRIVILEGES ON nova.* TO 'nova'@'%' IDENTIFIED BY 'NOVA_PASS';
+</code></pre>
+					</section>
+					<section>
+						<h2>安裝套件</h2>
+						<pre><code>apt-get install nova-api\
+                nova-cert\
+                nova-conductor\
+                nova-consoleauth\
+                nova-novncproxy\
+                nova-scheduler\
+                python-novaclient</code></pre>
+					</section>
+					<section>
+						<h2>修改設定檔</h2>
+						<ol>
+							<li>指定 Databases</li>
+							<li>指定 RabbitMQ</li>
+							<li>Keystone Auth 資訊</li>
+						</ol>
+						<img data-src="4ipstack/keystone_conf.png">
+						<img data-src="4ipstack/rabbit_conf.png">
+					</section>
+					<section>
+						<h2>註冊服務</h2>
+<pre><code>$ keystone user-create --name nova --pass NOVA_PASS
+$ keystone user-role-add --user nova --tenant service --role admin
+$ keystone service-create --name nova --type compute --description "OpenStack Compute"
+
+$ keystone endpoint-create \
+  --service-id $(keystone service-list | awk '/ compute / {print $2}') \
+  --publicurl http://controller:8774/v2/%\(tenant_id\)s \
+  --internalurl http://controller:8774/v2/%\(tenant_id\)s \
+  --adminurl http://controller:8774/v2/%\(tenant_id\)s \
+  --region regionOne
+</code></pre>
+						<img data-src="4ipstack/regist_service_list.png">
+					</section>
+					<section>
+						<h2>就降~超簡單~~~</h2>
+						<img data-src="http://i1.w.hjfile.cn/down/201102/dl20110223319444948238.jpg">
+					</section>
+				</section>
+				<section>
+					<section>
+						<h2>原本應該是這樣子的....</h2>
+						<img data-src="http://25.media.tumblr.com/tumblr_lqwbb3BDQz1r2u6t2o1_500.jpg">
+					</section>
+					<section>
+						<h2>第一個故事...</h2>
+					</section>
+					<section>
+						<h2>兩個 Router 會打架</h2>
+						<img data-src="http://sao.005.tv/Files/sao/2013051/20130614161948969.jpg">
+					</section>
+					<section>
+						<h2>兩個 Subnet，一個 External</h2>
+						<img data-src="4ipstack/both_network_topology.png">
+					</section>
+					<section>
+						<h2>理想上</h2>
+						<img data-src="4ipstack/both_network_topology_ideal_route.png">
+					</section>
+					<section>
+						<h2>實際上</h2>
+						<img data-src="4ipstack/both_network_topology_when_route.png">
+					</section>
+					<section>
+						<p>封包在 FORWARD 和 POSTROUTING 之間<span style="color:yellow; font-weight: bold;">蒸發了</span></p>
+					</section>
+					<section>
+						<h2>第二個故事...</h2>
+					</section>
+					<section>
+						<h2>L3-agent 假裝自己有在做事...</h2>
+						<img data-src="http://2.bp.blogspot.com/-ZkeppiDuKgA/T9WZrXPSngI/AAAAAAAAAIs/s3GrMD_jxtw/s1600/troll-sad-troll-face.png">
+					</section>
+					<section>
+						<h2>Daemon 有跑起來...</h2>
+						<img data-src="4ipstack/l3_agent_say_its alive.png">
+					</section>
+					<section>
+						<h2>Controller Node 找不到 l3-agent</h2>
+						<img data-src="4ipstack/l3agent_is_die.png">
+					</section>
+					<section>
+						<h2>元兇是...</h2>
+						<pre><code>debug = INFO</code></pre>
+					</section>
+					<section>
+						<h4>Controller 看不到的 AGENT 就無法提供服務</h4>
+						<h4>Controller 看不到的 AGENT 就無法提供服務</h4>
+						<h4>Controller 看不到的 AGENT 就無法提供服務</h4>
+						<p>很重要所以講三次 XD</p>
+					</section>
+					<section>
+						<h4>Configure 設錯，不一定會報錯，也不一定會有 LOG...</h4>
+						<h4>Configure 設錯，不一定會報錯，也不一定會有 LOG...</h4>
+						<h4>Configure 設錯，不一定會報錯，也不一定會有 LOG...</h4>
+						<p>也很重要所以講三次 XD</p>
+					</section>
+					<section>
+						<h2>第三個故事...</h2>
+					</section>
+					<section>
+						<h2>Provider Network</h2>
+						<h2>不能直接拿來用</h2>
+<pre><code>neutron net-list | grep ext</code></pre>
+						<img data-src="4ipstack/net_list.png">
+<pre><code>nova boot --flavor m1.tiny --image cirros-0.3.3-x86_64 \
+--nic net-id=ba42bb7b-048b-4516-9148-1ddb28614975 \
+cirros
+</code></pre>
+						<img data-src="4ipstack/use_external_will_fail_no_valid_host_was_found.png">
+						<p style="text-align: right">可是他還是拿得到 IP...</p>
+					</section>
+					<section>
+						<h2>附帶一提</h2>
+						<p>
+							<span style="color: yellow">No valid host was found.</span> 通常發生在系統資源不足的時候
+						</p>
+					</section>
+
+					<section>
+						<h2>第四個故事...</h2>
+					</section>
+					<section>
+						<h2><span style="color:red">cannot</span> ping <span style="color:yellow">via floating ip</span></h2>
+					</section>
+					<section>
+						<h2>Security Group !!</h2>
+						<img data-src="4ipstack/where_is_security_group.png">
+					</section>
+					<section>
+						<h2>Currently...</h2>
+						<ol>
+							<li>OUT IPv4 0.0.0.0/0</li>
+							<li>IN ICMP 0.0.0.0/0</li>
+							<li>IN Port:22 0.0.0.0/0</li>
+							<li>IN Port:80 0.0.0.0/0</li>
+						</ol>
+					</section>
+
+					<section>
+						<h2>第五個故事...</h2>
+					</section>
+					<section>
+						<h2><span style="color:red">cannot</span> ssh <span style="color:yellow">via floating ip</span></h2>
+					</section>
+					<section>
+						<h2>GRE Tunnel v.s MTU</h2>
+						<img data-src="4ipstack/GRE_Tunnel_break.png">
+						<p>Ref: <a href="http://teenyscrew.blogspot.tw/2014/06/gre-tunnel-mtu.html">使用 GRE Tunnel 時，可能會遇到的 MTU 問題</a></p>
+					</section>
+					<section>
+						<pre><code>ifconfig INSTANCE_INTERFACE mtu 1436</code></pre>
+						<p>or</p>
+						<p>TCP MSS</p>
+						<img data-src="4ipstack/debug_kernel.png">
+					</section>
+				</section>
+
+				<section>
+					<section data-markdown>
+						## 目前佈署狀況
+					</section>
+					<section data-markdown>
+						## 5 Nodes
+						|             | CPU | Memory | Storage |
+						|-------------|-----|--------|---------|
+						| Controller  |  4  |	8G   |   1T    |
+						| Network     |  8  |	4G   |  150G   |
+						| ComputeA    |  8  |  16G   |  150G   |
+						| Compute4    |  4  |  16G   |   1T    |
+						| Storage     |  4  |   4G   | 1T + 1T |
+					</section>
+					<section>
+<pre id="network_overview">
+     +-----------------------------------+                          
++----+        Switch (10.71.0.0/16)      |                          
+| +--+           (MGMT NETWORK)          +---+                      
+| |  +-----+----------------------+------+   |                      
+| |        |                      |          |                      
+| |  +-----+------+        +------+-------+  |    +----------------+
+| |  | Controller |        |   Network    +-------+      WAN       |
+| |  +------------+        +----+----+----+  |    | (10.74.5.0/24) |
+| |                             |    |       |    +----------------+
+| |         +-------------------+    |       |                      
+| |         |    (NEUTRON NETWORK)   |       |                      
+| |  +------+------+       +---------+----+  |                      
+| +--+   ComputeA  |       |   Compute4   +--+                      
+|    +------+------+       +-------+------+                         
+|           |   (STORAGE NETWORK)  |                                
+|    +------+----------------------+------+                         
++----+              Storage               |                         
+     +------------------------------------+                         
+</pre>
+<script id="network_overview_desc">
+	var network_overview = document.querySelector('#network_overview');
+	network_overview.innerHTML = network_overview.innerHTML.replace(/\((MGMT|NEUTRON|STORAGE) NETWORK\)/g, function(e){
+		return '<span style="color: gray">'+e+'</span>'
+	});
+</script>
+					</section>
+					<section>
+						<p>Openstack 內部的通訊都走 <span style="color:gray">Mgmt Network</span></p>
+						<p>資料流都走 <span style="color:gray">Neutron Network</span></p>
+						<p><span style="color:gray">Storage Network</span> 目前放空中 XD</p>			
+					</section>
+
+					<section>
+						<h2>Controller Node</h2>
+					</section>
+					<section data-markdown>
+						| Interface | Network |     IP      |
+						|-----------|---------|-------------|
+						|    em0    |   mgmt  | 10.71.211.1 |
+					</section>
+					<section>
+						<ol>
+							<li>MySQL</li>
+							<li>RabbitMQ Server</li>
+							<hr>
+							<li>KeyStone</li>
+							<li>Glance</li>
+							<li>Horizon</li>
+							<hr>
+							<li>*-scheduler</li>
+							<li>*-api</li>
+						</ol>
+					</section>
+
+					<section>
+						<h2>Compute Node</h2>
+					</section>
+					<section data-markdown>
+						#### ComputeA
+						| Interface | Network |     IP      |
+						|-----------|---------|-------------|
+						|   eth0    |   mgmt  | 10.71.231.1 |
+						|   eth3    | neutron | 172.16.231.1 |
+						|   eth2    | storage |      x      |
+					</section>
+
+					<section>
+						<h4> Compute4 </h4>
+						<table>
+							<thead>
+								<tr>
+									<th>Interface</th>
+									<th>Network</th>
+									<th>IP</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr>
+									<td>em1</td>
+									<td>mgmt</td>
+									<td>10.71.231.4</td>
+								</tr>
+								<tr>
+									<td>eth1</td>
+									<td>neutron</td>
+									<td>172.16.231.4</td>
+								</tr>
+								<tr>
+									<td>em2</td>
+									<td>storage</td>
+									<td>x</td>
+								</tr>
+							</tbody>
+						</table>	
+						<p style="color:gray; text-align: right;">陣亡中</p>
+
+					</section>
+					<section>
+						<ol>
+							<li>Nova</li>
+						</ol>
+					</section>
+
+					<section>
+						<h2>Network Node</h2>
+					</section>
+					<section data-markdown>
+						|   Interface  |  Network |        IP        |
+						|--------------|----------|------------------|
+						|     eth0     |   mgmt   |   10.71.221.1    |
+						|     eth1     | external | * (10.74.5.0/24) |
+						| InstanceGate |  neutron |   172.16.231.1   |
+						|     eth2     |    br    |        *         |
+						|     eth3     |    br    |        *         |
+					</section>
+					<section>
+						<ul>
+							<li>Neutron</li>
+						</ul>
+						
+						<p>10.74.5.1~10.74.5.100 for Floating IP</p>
+						<p>Virtual Router 也會佔用 IP</p>
+						
+					</section>
+
+					<section>
+						<h2>Storage Node</h2>
+					</section>
+					<section data-markdown>
+						|   Interface  | Network |     IP      |
+						|--------------|---------|-------------|
+						|      em1     |   mgmt  | 10.71.241.2 |
+						| InstanceGate | storage |      x      |
+						|     p1p1     |    br   |      *      |
+						|     p2p2     |    br   |      *      |
+					</section>
+					<section>
+						<ul>
+							<li>Cinder</li>
+						</ul>
+						<p>1TB for Instance</p>
+					</section>
+					<section>
+						<h2>登入帳密</h2>
+						<div>SSH: <div style="display: inline-block; min-width: 200px; color: yellow;" contenteditable>ACCT/PWD</div></div>
+						<div>WebUI: <div style="display: inline-block; min-width: 200px; color: yellow;" contenteditable>ACCT/PWD</div></div>
+					</section>
+				</section>
+				<section>
+					<section>
+						<h2>實際操作一次</h2>
+						<img data-src="http://fq866.myweb.hinet.net/msn/sophy0515/sophy0515%20(13).jpg">
+					</section>
+					<section>
+						<h2>確認可以使用的資源</h2>
+					</section>
+					<section>
+						<h2>硬體模板列表</h2>
+						<pre><code>nova flavor-list</code></pre>
+						<img data-src="4ipstack/get_flavor.png">
+					</section>
+					<section>
+						<h2>安全組列表</h2>
+						<pre><code>nova secgroup-list</code></pre>
+						<img data-src="4ipstack/get_secgroup.png">
+					</section>
+					<section>
+						<h2>映象檔列表</h2>
+						<pre><code>glance image-list</code></pre>
+						<img data-src="4ipstack/get_image.png">
+					</section>
+					<section>
+						<h2>網路資源列表</h2>
+						<pre><code>neutron net-list</code></pre>
+						<img data-src="4ipstack/get_subnet.png">
+					</section>
+					<section>
+						<h2>產生一個實例</h2>
+<pre><code>nova boot \
+--flavor FLAVOR_ID \
+--image IMAGE_ID \
+--nic net-id=SUBNET_ID \
+--security-group SECGROUP_ID \
+INSTANCE_NAME
+</code></pre>
+					<img data-src="4ipstack/instance_boot.png">
+					</section>
+					<section>
+						<h2>或者是...</h2>
+<pre><code>nova boot \
+--flavor FLAVOR_NAME \
+--image IMAGE_NAME \
+--nic net-id=INT_NET_ID \
+--security-group SECGROUP_NAME \
+INSTANCE_NAME</code></pre>
+					</section>
+					<section>
+						<h2>綁定 Floating IP</h2>
+					</section>
+					<section>
+						<h2>產生一個新的 Floating IP</h2>
+						<pre><code>neutron floatingip-create EXT_NET_ID</code></pre>
+						<img data-src="4ipstack/create_float_ip.png">
+					</section>
+					<section>
+						<h2>附加 IP 到實例上</h2>
+						<pre><code>nova floating-ip-associate INSTANCE_ID FLOATING_IP</code></pre>
+						<img data-src="4ipstack/assign_floating_ip.png">
+					</section>
+					<section>
+						<h2>外掛虛擬硬碟</h2>
+					</section>
+					<section>
+						<h2>產生虛擬硬碟</h2>
+						<pre><code>cinder create --display-name VOLUME_NAME VOLUME_SIZE(GB)</code></pre>
+					</section>
+					<section>
+						<h2>掛載硬碟到實例上</h2>
+						<pre><code>nova volume-attach INSTANCE_ID VOLUME_ID</code></pre>
+						<img data-src="4ipstack/new_volume.png">
+					</section>
+					<section>
+						<h2>格式化磁區</h2>
+						<pre><code>sudo fdisk</code></pre>
+						<img data-src="4ipstack/fdisk.png">
+						<pre><code>sudo mkfs.ext4 DEV_FILE</code></pre>
+					</section>
+
+					<section>
+						<h2>最後檢驗一下</h2>
+<pre><code>nova list
+nova volume-list</code></pre>
+					</section>
+					<section>
+						<h2>大功告成！</h2>
+						<pre><code>nova get-vnc-console INSTANCE_ID novnc</code></pre>						
+					</section>
+				</section>
+
+				<section>
+					<section>
+						<h2>最後分享幾個小技巧</h2>
+					</section>
+					<section>
+						<ul>
+							<li>ip netns</li>
+							<li>ip netns exec <span style='color:gray'>VIRTUAL_DEVICE</span> bash</li>
+						</ul>
+						<img data-src="4ipstack/ip_netns.png">
+					</section>
+					<section>
+
+						<ul>
+							<li>nova --help</li>
+							<li>neutron --help</li>
+						</ul>
+					</section>
+					<section>
+						<a href="http://anystacker.com/2014/02/openstack-command-line-cheat-sheet/">Command Cheat Sheet</a>
+					</section>
+					<section>
+						<h2>其實指令用猜的比較快 lol</h2>
+						<pre>
+                    +-           -+
++-       -+         | secgroup    |         +-        -+
+| nova    |         | volume      |         |  list    |
+|         | + ' ' + | floating-ip | + '-' + |  create  |
+| neutron |         | image       |         |  delete  |
++-       -+         | flavor      |         +-        -+
+                    +-           -+
+						</pre>
+						<p style="align:right">自動補齊也是猜指令的好碰友 :)</p>
+					</section>
+					<section>
+						<p>sudo nova-manage service list 2&gt/dev/null</p>
+						<img data-src="4ipstack/service_list.png">
+
+						<p>sudo neutron agent-list</p>
+						<img data-src="4ipstack/agent_list.png">
+					</section>
+					<section>
+						<h2>就算用 CLI 也要過 Keystone</h2>
+						<pre><code>source /home/admins/admin-openrc.sh
+source /home/admins/demo-openrc.sh</code></pre>
+					</section>		
+				</section>
+				<section>
+					<h1>謝謝大家</h1>
+					<img data-src="http://img.gq.com.tw/userfiles/sm/sm645_images_A1/19685/2014100364545449.jpg">
+				</section>
+			</div>
+		</div>
+
+		<!--li class="fragment">將部份服務托管是有可能達成的</li><!--例如 Storage Node 是一個外部的節點-->
+
+		<script src="js/reveal.js/lib/js/head.min.js"></script>
+		<script src="js/reveal.js/js/reveal.js"></script>
+
+		<script>
+
+			// Full list of configuration options available at:
+			// https://github.com/hakimel/reveal.js#configuration
+			Reveal.initialize({
+				controls: true,
+				progress: true,
+				history: true,
+				center: true,
+
+				transition: 'slide', // none/fade/slide/convex/concave/zoom
+
+				// Optional reveal.js plugins
+				dependencies: [
+					{ src: 'js/reveal.js/lib/js/classList.js', condition: function() { return !document.body.classList; } },
+					{ src: 'js/reveal.js/plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					{ src: 'js/reveal.js/plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					{ src: 'js/reveal.js/plugin/highlight/highlight.js', async: true, condition: function() { return !!document.querySelector( 'pre code' ); }, callback: function() { hljs.initHighlightingOnLoad(); } }
+				]
+			});
+
+		</script>
+
+	</body>
+</html>

@@ -1,0 +1,317 @@
+<!doctype html>
+<html lang="en">
+
+	<head>
+		<meta charset="utf-8">
+
+		<title>Introduction to OpenStack</title>
+
+		<meta name="description" content="A Brief Describe of openstack.">
+		<meta name="author" content="Pu Hsiu, Chiang">
+
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+
+		<link rel="stylesheet" href="js/reveal.js/css/reveal.css">
+		<link rel="stylesheet" href="js/reveal.js/css/theme/black.css" id="theme">
+
+		<!-- Code syntax highlighting -->
+		<link rel="stylesheet" href="js/reveal.js/lib/css/zenburn.css">
+
+		<!-- Printing and PDF exports -->
+		<script>
+			var link = document.createElement( 'link' );
+			link.rel = 'stylesheet';
+			link.type = 'text/css';
+			link.href = window.location.search.match( /print-pdf/gi ) ? 'js/reveal.js/css/print/pdf.css' : 'js/reveal.js/css/print/paper.css';
+			document.getElementsByTagName( 'head' )[0].appendChild( link );
+		</script>
+
+		<!--[if lt IE 9]>
+		<script src="js/reveal.js/lib/js/html5shiv.js"></script>
+		<![endif]-->
+
+		<style>
+			.author {
+				color: gray;
+			}
+
+			.author:before {
+				content: ' - '
+			}
+		</style>
+	</head>
+
+	<body>
+
+		<div class="reveal">
+
+			<div class="slides">
+				<section>
+					<h1>Introduction to <a href="http://www.openstack.org/"><img style="width:200px;height:200px" data-src="introduction_to_openstack/openstack_icon.png"></a></h1>
+				</section>
+				<section>
+					<section>
+						<h2>有一天</h2>
+						<table>
+							<tr>
+								<td><img style="width:200px;height:200px" data-src="introduction_to_openstack/mark-b.jpg"></td>
+								<td><img style="width:200px;height:200px" data-src="introduction_to_openstack/mark-m.jpg"></td>
+							</tr>
+						</table>
+					</section>
+					<section>
+						<p>
+							這裡有 <br>
+							一台 GW，
+							兩台 Switch，
+							三台 NAS，
+							四台 Server，
+							五台…
+						</p>
+						<p>麻煩弄個開發環境出來</p>
+						<img style="width:200px;height:200px" data-src="introduction_to_openstack/mark-b.jpg">
+					</section>
+					<section>
+						<p> 好哦~ </p>
+						<img style="width:200px;height:200px" data-src="introduction_to_openstack/mark-m.jpg">
+					</section>
+					<section>
+						<p>啊，另外還要弄幾個測試的環境</p>
+						<p>環境之間不要彼此汙染哦！</p>
+						<img style="width:200px;height:200px" data-src="introduction_to_openstack/mark-b.jpg">
+					</section>
+					<section>
+						<p>用 Virtualization 或 Container 好像 OK!? </p>
+						<img style="width:200px;height:200px" data-src="introduction_to_openstack/mark-m.jpg">
+					</section>
+					<section>
+						<p>啊，以後可能還會看情況增減硬體</p>
+						<p>環境什麼的最好可以很簡單的擴充</p>
+						<p>負載平衡什麼的也考慮一下</p>
+						<p>另外找個方法讓管理更方便一點</p>
+						<img style="width:200px;height:200px" data-src="introduction_to_openstack/mark-b.jpg">
+					</section>
+					<section>
+						<img style="width: 200%;height: 200%;" data-src="https://encrypted-tbn1.gstatic.com/images?q=tbn:ANd9GcRtaF64Dr-YOdyXy-ZCvVj6aGOo3UJrtd0pB-N-ziblVl-aepBMIQ">
+					</section>
+				</section>
+				<!--Why Cloud, Why OpenStack-->
+				<!--Openstack 版本衍進-->
+				<!--Brief describe related production in the world，Openstack 可以做很多事-->
+				<!--section>
+					<section>
+						<p>
+							我們正在用OpenStack搭建的雲，讓擁有敏捷性、可用性和創新性的最好的產品，服務於我們用戶，同時我們比競爭對手更快。
+							<span class="author">Paypal 基礎設施高階主管 Saran Mandair</span>
+						</p>
+					</section>
+					<section>
+						<p>
+							我們很榮幸能與紅帽擴展既有的合作關係，進一步提供OpenStack網路功能虛擬化的合作。
+							<span class="author">華為雲端運算產品線總裁任志鵬</span>
+						</p>
+					</section>
+				</section>
+				<section>
+					<section>
+						<ul>
+							<li>Cisco WebEx</li>
+							<li>Yahoo</li>
+							<li>Rackspace</li>
+							<li>Sony Network Entertainment</li>
+							<li>京東</li>
+							<li>小米</li>
+							<li>Unitedstack</li>
+							<li>inwinStack</li>
+							<li><a href="http://www.openstack.org/user-stories">...</a></li>
+						</ul>
+					</section>
+				</section-->
+				<!--http://www.inwinstack.com/Default.aspx-->
+
+				<section>
+					<!--Introduction to OpenStack, include what it is, its member (nova, neutron, ...)-->
+					<section>
+						<h2>What is Openstack ?</h2>
+					</section>
+					<section>
+						<p>整合分散的硬體資源 + 有效的分配  的平台</p>
+						<img data-src="introduction_to_openstack/openstack_is_a_platform.png">
+					</section>
+					<!--section>
+						<h2>或者也可以稱之為 "技術間協調者"</h2>
+					</section-->
+					<section>
+						<h2>資源分配</h2>
+						<ul>
+							<li>CPU ： Nova</li>
+							<li>Memory ： Nova</li>
+							<li>Storage ： Cinder or Swift</li>
+							<li>Network ： Neutron</li>
+						</ul>
+					</section>
+					<section>
+						<h2>擴展容易</h2>
+						<ul>
+							<li>接電接網路</li>
+							<li>裝 Package </li>
+							<li>抄設定檔</li>
+							<li>...............就這樣 XD</li>
+						</ul>
+					</section>
+					<section>
+						<h2>移除設備也很簡單</h2>
+						<ul>
+							<li>該備份備份一下</li>
+							<li>該搬的 VM 搬一搬</li>
+							<li>拔電拔網路</li>
+							<li>...............End</li>
+						</ul>
+					</section>
+					<section>
+						<h2>Admin Friendly</h2>
+						<ul>
+							<li>資源狀態的監控：Celimeter</li>
+							<li>管理者介面：Horizon</li>
+						</ul>
+					</section>
+					<section>
+						<h2>VM 輕鬆佈署</h2>
+						<ul>
+							<li>模版功能：Heat</li>
+							<li>自動化管理：Puppet</li>
+						</ul>
+					</section>
+					<!--section>
+						<h2>更扯的是他的競爭對手居然也在 OpenStack 上壓寶</h2>
+						<a href="http://www.ithome.com.tw/news/90440">擁抱開源OpenStack和Docker，VMware跨出私有雲邁向混合雲策略</a>
+					</section-->
+				</section>
+				<!--section>
+					<section>
+						<h2>比較</h2>
+					</section>
+					<section>
+						<h2>VMware</h2>
+					</section>
+					<section>
+						<h2>Citrix (CloudStack)</h2>
+					</section>
+					<section>
+						<h2>zStack</h2>
+					</section>
+					<section>
+						<h2>Apache Mesos</h2>
+					</section>
+				</section-->
+				<!--可佈節點數-->
+				<!--http://www.hengtianyun.com/download-show-id-705.html-->
+				<!--http://www.ithome.com.tw/news/95427-->
+				<section>
+					<section>
+						<h2>LIVE DEMO!!</h2><!--Demo 4ipCloud, maybe run an special instance-->
+					</section>
+					<section>
+						<h2>虛擬硬體 (Flavor)</h2>
+						<img data-src="introduction_to_openstack/livedemo-flavors.png">
+					</section>
+					<section>
+						<h2>Network</h2>
+						<img data-src="introduction_to_openstack/livedemo-network.png">
+					</section>
+					<section>
+						<h2>Image</h2>
+						<img data-src="introduction_to_openstack/livedemo-images.png">
+					</section>
+					<section>
+						<h2>RAW v.s QCOW2</h2>
+						<pre><code>qemu-img convert -O qcow2 XXX.bin XXX.qcow2</code></pre>
+						<img data-src="introduction_to_openstack/qcow2_vs_raw.png">
+					</section>
+					<section>
+						<h2>Instance</h2>
+						<img data-src="introduction_to_openstack/livedemo-instance.png">
+					</section>
+					<section>
+						<h2>Security Group</h2>
+						<img data-src="introduction_to_openstack/livedemo-secgroup.png">
+					</section>
+					<section>
+						<h2>Floating IP</h2>
+						<img data-src="introduction_to_openstack/livedemo-assign-floatingip.png">
+					</section>
+					<section>
+						<img data-src="introduction_to_openstack/mark-ya.png">
+					</section>
+				</section>
+				<section>
+					<section>
+						<h2>WebUI 功能還不夠完整...</h2>
+						<p>
+							建議參考
+							<a href="http://anystacker.com/2014/02/openstack-command-line-cheat-sheet/">Command Cheat Sheet</a>
+							或者
+							<a href="http://docs.openstack.org/cli-reference/content/">官方的 CLI Reference</a>
+						</p>
+					</section>
+				</section>
+				<section>
+					<section>
+						<h2>Enjoy it!</h2>
+					</section>
+					<section>
+						<h2>試試水溫...</h2>
+						<p><a href="http://docs.openstack.org/developer/devstack/">Devstack</a></p>
+					</section>
+					<section>
+						<h2>或者...</h2>
+						<p><a href="http://docs.openstack.org/juno/install-guide/install/apt/content/ch_preface.html">參考官方安裝指南</a></p>
+					</section>
+				</section>
+				<section>
+					<h2 style="color:gray">沒有 Q &amp A</h2>
+					<img data-src="http://media.comicbook.com/wp-content/uploads/2013/12/brian-griffin-family-guy.jpg">
+				</section>
+				<section>
+					<h2>Thanks</h2>
+				</section>
+
+
+				<!--重點是超多大咖都伙在開發團隊裡啊啊啊啊啊-->
+				<!--VMware已经贡献出VCDrivers 去帮助OpenStack去管理vSphere集群-->
+				<!--Iaas, PaaS, ...? -->
+				<!--Why Openstack in our company-->
+			</div>
+		</div>
+
+		<script src="js/reveal.js/lib/js/head.min.js"></script>
+		<script src="js/reveal.js/js/reveal.js"></script>
+
+		<script>
+
+			// Full list of configuration options available at:
+			// https://github.com/hakimel/reveal.js#configuration
+			Reveal.initialize({
+				controls: true,
+				progress: true,
+				history: true,
+				center: true,
+
+				transition: 'slide', // none/fade/slide/convex/concave/zoom
+
+				// Optional reveal.js plugins
+				dependencies: [
+					{ src: 'js/reveal.js/lib/js/classList.js', condition: function() { return !document.body.classList; } },
+					{ src: 'js/reveal.js/plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					{ src: 'js/reveal.js/plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					{ src: 'js/reveal.js/plugin/highlight/highlight.js', async: true, condition: function() { return !!document.querySelector( 'pre code' ); }, callback: function() { hljs.initHighlightingOnLoad(); } }
+				]
+			});
+
+		</script>
+
+	</body>
+</html>
